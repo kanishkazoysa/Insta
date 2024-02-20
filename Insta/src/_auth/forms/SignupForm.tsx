@@ -3,7 +3,7 @@ import {Link} from "react-router-dom"
 import {
   Form,
   FormControl,
-  FormDescription,
+  // FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -15,7 +15,8 @@ import { useForm } from "react-hook-form"
 import { SignupValidation } from "@/lib/validation"
 import { z } from "zod"
 import Loader from "@/components/ui/shared/Loader"
-import { truncate } from "fs"
+// import { truncate } from "fs"
+import { createUserAccount } from "@/lib/appwrite/api"
 
 
 export default function SignupForm() {
@@ -33,8 +34,9 @@ export default function SignupForm() {
   })
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof SignupValidation>) {
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof SignupValidation>) {
+    const newUser = await createUserAccount(values);
+    console.log(newUser);
   }
 
   return (
