@@ -16,13 +16,14 @@ import { useForm } from "react-hook-form"
 import { SignupValidation } from "@/lib/validation"
 import { z } from "zod"
 import Loader from "@/components/ui/shared/Loader"
-// import { truncate } from "fs"
-import { createUserAccount } from "@/lib/appwrite/api"
+import { useCreateUserAccount, useSignInAccount } from "@/lib/react-query/queriesAndMutations"
 
 
 export default function SignupForm() {
 const {toast} = useToast();
-  const isLoading = false;
+
+const { mutateAsync: createUserAccount, isLoading:isCreatingAccount } = useCreateUserAccount();
+const {mutateAsync: signInAccount, isLoading: isSigningIn} = useSignInAccount();
 
   const form = useForm<z.infer<typeof SignupValidation>>({
     resolver: zodResolver(SignupValidation),
@@ -34,7 +35,7 @@ const {toast} = useToast();
     },
   })
 
-  const { mutateAsync: createUserAccount, isLoading:isCreatingAccount } = useCreateUserAccountMutation()
+  
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof SignupValidation>) {
@@ -47,7 +48,17 @@ const {toast} = useToast();
        
       })
     }
-    const session = await signInAccount();
+    const session = await signInAccount(
+      {
+        email: values.email,
+        password: values.password,
+      }
+    );
+    if(!session) {
+      return toast({
+        title: "Sign In Failed. Please try again later",
+      })
+    }
   }
 
   return (
