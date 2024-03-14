@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import {Link} from "react-router-dom"
+import { Link, useNavigate } from "react-router-dom"
 import { useToast } from "@/components/ui/use-toast"
 import {
   Form,
@@ -17,13 +17,15 @@ import { SignupValidation } from "@/lib/validation"
 import { z } from "zod"
 import Loader from "@/components/ui/shared/Loader"
 import { useCreateUserAccount, useSignInAccount } from "@/lib/react-query/queriesAndMutations"
+import { useUserContext } from "@/context/AuthContext"
 
 
 export default function SignupForm() {
-const {toast} = useToast();
-
-const { mutateAsync: createUserAccount, isLoading:isCreatingAccount } = useCreateUserAccount();
-const {mutateAsync: signInAccount, isLoading: isSigningIn} = useSignInAccount();
+  const { toast } = useToast();
+  const { checkAuthUser, isLoading: isUserLoader } = useUserContext();
+  const navigate = useNavigate();
+  const { mutateAsync: createUserAccount, isLoading: isCreatingAccount } = useCreateUserAccount();
+  const { mutateAsync: signInAccount, isLoading: isSigningIn } = useSignInAccount();
 
   const form = useForm<z.infer<typeof SignupValidation>>({
     resolver: zodResolver(SignupValidation),
@@ -35,17 +37,17 @@ const {mutateAsync: signInAccount, isLoading: isSigningIn} = useSignInAccount();
     },
   })
 
-  
+
 
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof SignupValidation>) {
     const newUser = await createUserAccount(values);
-    
-    if(!newUser) {
+
+    if (!newUser) {
       return toast({
         title: "Sign Up Failed. Please try again later",
-        
-       
+
+
       })
     }
     const session = await signInAccount(
@@ -54,7 +56,17 @@ const {mutateAsync: signInAccount, isLoading: isSigningIn} = useSignInAccount();
         password: values.password,
       }
     );
-    if(!session) {
+
+    if (!session) {
+      return toast({
+        title: "Sign In Failed. Please try again later",
+      })
+    }
+    const isLoggedIn = await checkAuthUser();
+    if (isLoggedIn) {
+      form.reset();
+      navigate("/home");
+    } else {
       return toast({
         title: "Sign In Failed. Please try again later",
       })
@@ -66,7 +78,7 @@ const {mutateAsync: signInAccount, isLoading: isSigningIn} = useSignInAccount();
     <Form {...form}>
       <div className="sm:w-300  flex-center flex-col">
         <img src="/assets/images/logo.svg" alt="logo" />
-         <h2 className="h3-bold md:h2-bold sm:pt-2">Create a new account</h2>
+        <h2 className="h3-bold md:h2-bold sm:pt-2">Create a new account</h2>
         <p className="text-light-3 small-medium md:base-regular mt-0,1">
           To use Snapgram, please enter your details
         </p>
@@ -126,7 +138,7 @@ const {mutateAsync: signInAccount, isLoading: isSigningIn} = useSignInAccount();
             )}
           />
           <Button type="submit" className="shad-button_primary">
-            {isLoading ? (
+            {isCreatingAccount ? (
               <div className="flex-center gap-2">
                 <Loader />
                 Loading...
