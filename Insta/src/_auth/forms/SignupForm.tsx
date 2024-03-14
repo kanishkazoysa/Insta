@@ -14,7 +14,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { useForm } from "react-hook-form"
 import { SignupValidation } from "@/lib/validation"
-import { z } from "zod"
+import  * as z from "zod"
 import Loader from "@/components/ui/shared/Loader"
 import { useCreateUserAccount, useSignInAccount } from "@/lib/react-query/queriesAndMutations"
 import { useUserContext } from "@/context/AuthContext"
@@ -24,8 +24,8 @@ export default function SignupForm() {
   const { toast } = useToast();
   const { checkAuthUser, isLoading: isUserLoader } = useUserContext();
   const navigate = useNavigate();
-  const { mutateAsync: createUserAccount, isLoading: isCreatingAccount } = useCreateUserAccount();
-  const { mutateAsync: signInAccount, isLoading: isSigningIn } = useSignInAccount();
+  const { mutateAsync: createUserAccount, isPending: isCreatingAccount } = useCreateUserAccount();
+  const { mutateAsync: signInAccount, isPending: isSigningIn } = useSignInAccount();
 
   const form = useForm<z.infer<typeof SignupValidation>>({
     resolver: zodResolver(SignupValidation),
@@ -63,9 +63,10 @@ export default function SignupForm() {
       })
     }
     const isLoggedIn = await checkAuthUser();
+
     if (isLoggedIn) {
       form.reset();
-      navigate("/home");
+      navigate("/");
     } else {
       return toast({
         title: "Sign In Failed. Please try again later",
