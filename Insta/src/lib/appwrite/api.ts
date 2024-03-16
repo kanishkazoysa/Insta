@@ -1,7 +1,7 @@
 import { ID, Query } from "appwrite";
 
-import { appwriteConfig, account, databases,  avatars } from "./config";
-import {  INewUser,  } from "@/types";
+import { appwriteConfig, account, databases, avatars } from "./config";
+import { INewUser } from "@/types";
 
 // ============================================================
 // AUTH
@@ -63,6 +63,15 @@ export async function signInAccount(user: { email: string; password: string }) {
   try {
     const session = await account.createEmailSession(user.email, user.password);
 
+    return session;
+  } catch (error) {
+    console.log(error);
+  }
+}
+// ============================== SIGN OUT
+export async function signOutAccount() {
+  try {
+    const session = await account.deleteSession("current");
     return session;
   } catch (error) {
     console.log(error);
