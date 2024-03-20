@@ -25,8 +25,8 @@ const PostForm = ({ post }: PostFormProps) => {
     const {toast} = useToast();
     const navigate = useNavigate();
 
-    const { mutateAsync: updatePost, isLoading: isLoadingUpdate } =
-        useUpdatePost();
+    // const { mutateAsync: updatePost, isLoading: isLoadingUpdate } =
+    //     useUpdatePost();
 
     const form = useForm<z.infer<typeof PostValidation>>({
         resolver: zodResolver(PostValidation),
@@ -130,7 +130,7 @@ const PostForm = ({ post }: PostFormProps) => {
                     </Button>
                     <Button
                         type="submit"
-                        className="shad-button_primary whitespace-nowrap"
+                        className="shad-button_primary"
                     >
                         Post
                     </Button>
